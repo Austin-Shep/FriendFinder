@@ -1,0 +1,17 @@
+var express = require("express");
+var router = require("./app/routes/routes.js");
+
+//init express
+var app = express();
+var PORT = process.env.PORT || 3000;
+
+// Sets up the Express app to handle data parsing
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.use(router);
+
+//last on the server
+app.listen(PORT, function() {
+    console.log("App listening on PORT " + PORT);
+  });
