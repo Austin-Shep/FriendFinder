@@ -15,9 +15,35 @@ router.get("/api/friends", function(req,res){
 
 router.post("/api/friends", function(req,res){
     //post the survey data here
-    console.log(`data from routes`,req.body);
-    users.push(req.body);
-    res.json(true);
+    var newUser = req.body 
+    console.log(`data from routes`,newUser);
+    
+
+    var bestMatch;
+    var bestDiff = 1000; 
+    //match finder
+    users.forEach(e => {
+
+        console.log(`comparing your reults with ${e.name}`)
+        
+        var totDif = 0;
+
+        for(var i = 0; i < 10; i++ ){
+
+            totDif += Math.abs(e.scores[i] - newUser.scores[i])
+        }
+
+        if(totDif < bestDiff){
+            bestDiff = totDif;
+            bestMatch = e;
+        }
+        
+
+    });
+
+    //resolve
+    users.push(newUser);
+    res.json(bestMatch);
 
 })
 

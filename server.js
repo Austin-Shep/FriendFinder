@@ -1,5 +1,6 @@
 var express = require("express");
 var router = require("./app/routes/routes.js");
+var page = require("./app.js")
 
 //init express
 var app = express();

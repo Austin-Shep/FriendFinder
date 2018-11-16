@@ -24,7 +24,7 @@
         <div class="col s12 m5">
           <div class="card">
             <div class="card-content">
-              <span class="card-title">Card Title</span>
+              <span class="card-title">Fill out this survey to find the One</span>
               <!-- {{!-- survey here --}} -->
               <form id="surveyForm">
                 <div class="input-field col s6">
@@ -36,6 +36,7 @@
                     <label for="email">Last Name</label>
                   </div>
                 <br>
+                
                 <div class="col s12">
                   <p>
                     You like to Eat later rather than earlier.
@@ -201,10 +202,10 @@
             </div>
           </div>
         </div>
-    <div class="col s12 m5">
+    <div class="col s12 m5 offset-m2">
       <div class="card">
-        <div class="card-title">
-          <span class="card-title">Your Potential Lovers</span>
+        <div class="card-content">
+          <span class="card-title">Your New Forever</span>
         </div>
         <div class="card-content" id="lovePoster">
           <!-- {{!-- name of all the lover bois --}} -->
@@ -224,8 +225,9 @@
   integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
   crossorigin="anonymous"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
- <script type="text/javascript">
+ <script type="text/javascript" >
   document.addEventListener('DOMContentLoaded', function() {
+    //materialize code=================================
     M.AutoInit();
     var elems = document.querySelectorAll('select');
     elems.onchange = selectThem;
@@ -234,46 +236,69 @@
       var selectedOne = instances.getSelectedValues();
       console.log(selectedOne);
     };
-    //survey submit form
-    $("#surveyForm").on("submit", function(event){
-      event.preventDefault();
-      var scores =[]
-      scores.push(parseInt($("#q1").val()),parseInt($("#q2").val()),parseInt($("#q3").val()),parseInt($("#q4").val()),parseInt($("#q5").val()),parseInt($("#q6").val()),parseInt($("#q7").val()),parseInt($("#q8").val()),parseInt($("#q9").val()),parseInt($("#q10").val()))
-      var results ={
-        //get results and push to an object with three attr, name, email, survey(arr)
-        name:$("#name").val().trim(),
-        email:$("#email").val().trim(),
-        scores: scores,
-      }
-      //ajax
-      $.ajax({url: "/api/friends", 
-        type: "POST",
-        data: results
-      }).then(
-        function() {
-          console.log(`Posted Survey From ${results.name}`)
-          location.reload()
-        }
-      )
+    //end materialize code=============================
 
-    }) 
-    //user getter
-    $.ajax({url: "/api/friends", 
-      method: "GET"
-    }).then( function(res){
-      console.log(res)
-      res.forEach(u => {
-        //run comparison here???????
-        $("#lovePoster").append(
-          $('<div/>', {class:`${u.name}`}).append(
-            $('<h3/>').text(`${u.name}`)
+    //user class, to build and manage all users on the sight
+    class User{ 
+      constructor (name, email, scores){
+        this.name = name;
+        this.email = email;
+        this.scores = scores;
+      }
+
+      // get avg(){ //old way of comparing 
+      //   return (this.scores.reduce((a, b) => a + b, 0)) / this.scores.length
+      // }
+
+      findLove(){
+        $.ajax({
+            url: "/api/friends", 
+            type: "POST",
+            data: this
+        }).then(function(data) {
+          console.log(`Posted Survey From ${this.name}`)
+          console.log(`data from survey, hopefully a macth: ${JSON.stringify(data)}`)
+
+          //post the new loves info here, 
+          $("#lovePoster").append(
+            $("<div/>").append(
+              $("<h3/>").text(data.name)
             ).append(
-             $('<p/>').text(`${u.email}`) 
+              $("<p/>").text(`Why not shoot them an email? \n ${data.email}`)
+            )
           )
-        )
-      })
+        })
+      }
+
+     
+
+    }//end class
+
+
+
+    $("#surveyForm").on("submit", function(event){  
+        event.preventDefault();
+
+        var scores =[]
+        scores.push(parseInt($("#q1").val()),parseInt($("#q2").val()),parseInt( $("#q3").val()),parseInt($("#q4").val()),parseInt($("#q5").val()),parseInt($("#q6").val()),parseInt($("#q7").val()),parseInt($("#q8").val()),parseInt($("#q9").val()),parseInt($("#q10").val()))
+
+        //construct the new user using data from the survey
+        let newUser = new User($("#name").val().trim(), $("#email").val().trim(), scores)
+
+        //post the new user using the method ajax call
+        newUser.findLove();
     })
-  });
+
+    //user getter
+    // $.ajax({
+    //         url: "/api/friends", 
+    //         method: "GET"
+    //     }).then( function(res){
+    //         console.log(`find love response ${JSON.stringify(res)}`)
+    //          //run comparison here??????? filter and a math conditional 
+    //     })
+    
+});
  </script>
 </body>
 </html>
